@@ -1,2 +1,0 @@
-## Object-oriented-Programming
-Выполненные ЛР по ООП на языке Python (Астраков Борис, ПИЖ-б-о-23-1)
