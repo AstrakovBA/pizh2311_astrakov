@@ -16,60 +16,60 @@ class AbstractCollection(ABC):
 
     @abstractmethod
     def in_data(self):
-        pass
+        '''см. TArray'''
 
     @abstractmethod
     def out_data(self):
-        pass
+        '''см. TArray'''
 
     @abstractmethod
     def minmax(self):
-        pass
+        '''см. TArray'''
 
     @abstractmethod
     def sort_arr(self):
-        pass
+        '''см. TArray'''
 
     @abstractmethod
     def summ_arr(self):
-        pass
+        '''см. TArray'''
 
 class TArray:
 
     '''Базовый класс. Переменные "size" и "elements" ИНКАПСУЛИРОВАНЫ'''
 
-    #Инициализация без параметров и с параметрами
     def __init__(self, size=0):
+        '''Инициализация экземпляра класса без параметров и с параметром size'''
         self._size = size
         self._elements = [0] * size
 
-    #Конструктор копирования
     def __copy__(self):
+        '''Конструктор копирования'''
         new_arr = TArray(self._size)
         new_arr._elements = self._elements.copy()
         return new_arr
 
-    #Ввод данных
     def in_data(self):
+        '''Ввод данных c защитой от ошибок'''
         for i in range(self._size):
             while True:
                 try:
                     self._elements[i] = int(input(f"Элемент {i}: "))
-                    break  # Выход из цикла, если ввод успешен
+                    break
                 except ValueError:
                     print("Пожалуйста, введите целое число.")
 
-    #Вывод данных (CALL)
     def __call__(self):
+        '''Вывод данных (CALL)'''
         return str(self._elements)
 
-    #Добавление элемента с перегрузкой плюса (ПОЛИМОРФИЗМ)
     def __add__(self, value):
+        '''Добавление элемента с перегрузкой плюса (ПОЛИМОРФИЗМ)'''
         self._elements.append(value)
         self._size += 1
 
-    #Умножение элемента с перегрузкой умножения (ПОЛИМОРФИЗМ)
     def __mul__(self, value):
+        '''Умножение элемента с перегрузкой умножения (ПОЛИМОРФИЗМ)'''
         self._elements = [element * value for element in self._elements]
 
 class ExtTArray(TArray):
@@ -78,43 +78,45 @@ class ExtTArray(TArray):
     функции поиска минимального и максимального элементов,
     сортировки и поиска суммы всех элементов массива'''
 
-    #Вывод мин. и макс. элементов
     def minmax(self):
+        '''Вывод мин. и макс. элементов в массиве'''
         if self._size > 0:
             print("Минимальный элемент: " + str(min(self._elements)))
             print("Максимальный элемент :" + str(max(self._elements)))
         else:
             return None
-    
-    #Сортировка
+
     def sort_arr(self):
+        '''Сортировка массива'''
         self._elements.sort()
 
-    #Поиск суммы
     def summ_arr(self):
+        '''Поиск суммы всех элементов массива'''
         return sum(self._elements)
 
 class Matrix:
 
     '''Класс "Матрица", использующий TArray как атрибут (КОМПОЗИЦИЯ)'''
 
-    #Конструктор
     def __init__(self, rows, cols):
+        '''Конструктор экземпляра класса
+        с параметрами размеров строк и столбцов.
+        Берёт данные из класса TArray'''
         self.rows = rows
         self.cols = cols
         self._data = [TArray(cols) for _ in range(rows)]
 
-    #Ввод данных
     def in_data(self):
+        '''Ввод данных'''
         for i in range(self.rows):
             print(f"Введите данные для строки {i}:")
             self._data[i].in_data()
 
-    #Получение строки по индексу
     def __getitem__(self, index):
+        '''Получение строки по индексу'''
         return self._data[index]
 
-    #Вывод матрицы
     def display(self):
+        '''Вывод матрицы'''
         for row in self._data:
             print(row())
