@@ -6,32 +6,34 @@
 -ПОЛИМОРФИЗМ: в классе TArray используются методы с перегрузкой операторов сложения и умножения;
 -АБСТРАКЦИЯ: класс AbstractCollection является абстрактным;
 -КОМПОЗИЦИЯ: класс TArray используется как атрибут в методах класса Matrix.
-Использование CALL: как метод класса TArray для вывода элементов массива'''
+Использование CALL: как метод класса TArray для вывода элементов массива
+Использование аннотации типов: в абстрактном классе для явной типизации методов'''
 
 from abc import ABC, abstractmethod
+from typing import Optional
 
 class AbstractCollection(ABC):
 
     '''АБСТРАКТНЫЙ класс для коллекции'''
 
     @abstractmethod
-    def in_data(self):
+    def in_data(self) -> None:
         '''см. TArray'''
 
     @abstractmethod
-    def out_data(self):
+    def out_data(self) -> None:
         '''см. TArray'''
 
     @abstractmethod
-    def minmax(self):
+    def minmax(self) -> Optional[None]:
         '''см. ExtTArray'''
 
     @abstractmethod
-    def sort_arr(self):
+    def sort_arr(self) -> None:
         '''см. ExtTArray'''
 
     @abstractmethod
-    def summ_arr(self):
+    def summ_arr(self) -> int:
         '''см. ExtTArray'''
 
 class TArray:
