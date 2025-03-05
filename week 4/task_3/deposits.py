@@ -1,4 +1,6 @@
 '''Файл содержит реализации всех видов депозита с единым интерфейсом'''
+from abc import ABC, abstractmethod
+from typing import Union
 
 class Deposit(ABC):
     """
