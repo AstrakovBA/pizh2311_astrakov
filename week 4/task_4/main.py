@@ -6,6 +6,7 @@
 E-Mail: bororo8918@gmail.com
 """
 
+from collections import deque
 import complex_number
 
 def main():
