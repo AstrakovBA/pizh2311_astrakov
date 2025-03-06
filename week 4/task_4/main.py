@@ -32,4 +32,13 @@ def main():
 
 if __name__ == "__main__":
     main()
-  
+# Пример вывода:
+#
+# cn1: 3.0 + 4.0i
+# cn2: 1.0 + 2.0i
+# cn1 + cn2: 4.0 + 6.0i
+# cn1 - cn2: 2.0 + 2.0i
+# cn1 * cn2: -5.0 + 10.0i
+# cn1 / cn2: 2.2 + 0.4i
+# cn3 from string: 5.0 + 6.0i
+# cn4 loaded from file: 3.0 + 4.0i
