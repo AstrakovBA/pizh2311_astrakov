@@ -16,3 +16,12 @@ print(r1 - r2)  # V (5)
 
 print(Roman.arabic_to_roman(8)) # VIII
 print(Roman.roman_to_arabic('MCMXLV')) # 1945
+
+# Вывод программы:
+# 
+# r1: X (10)
+# r2: V (5)
+# r1 + r2: XV (15)
+# r1 - r2: V (5)
+# 8 in Roman: VIII
+# MCMXLV in Arabic: 1945
