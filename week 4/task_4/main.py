@@ -30,10 +30,25 @@ def main():
     cn4 = ComplexNumber.load("complex_number.json")
     print(f"cn4 loaded from file: {cn4}")
 
+    # Реализация очереди с помощью deque
+    queue = deque()
+
+    # Добавление комплексных чисел в очередь
+    queue.append(cn1)
+    queue.append(cn2)
+    queue.append(cn3)
+
+    print("\nПервый элемент в очереди:", queue[0])  # Показать первый элемент
+    print("Размер очереди:", len(queue))            # Показать размер очереди
+
+    # Удаление элементов из очереди
+    while queue:
+        print("Удаляем элемент:", queue.popleft())   # Удалить и показать первый элемент
+
 if __name__ == "__main__":
     main()
+    
 # Пример вывода:
-#
 # cn1: 3.0 + 4.0i
 # cn2: 1.0 + 2.0i
 # cn1 + cn2: 4.0 + 6.0i
@@ -42,3 +57,8 @@ if __name__ == "__main__":
 # cn1 / cn2: 2.2 + 0.4i
 # cn3 from string: 5.0 + 6.0i
 # cn4 loaded from file: 3.0 + 4.0i
+# Первый элемент в очереди: 3.0 + 4.0i
+# Размер очереди: 3
+# Удаляем элемент: 3.0 + 4.0i
+# Удаляем элемент: 1.0 + 2.0i
+# Удаляем элемент: 5.0 + 6.0i
