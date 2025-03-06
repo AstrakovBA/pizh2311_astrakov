@@ -1,3 +1,11 @@
+"""
+Программирование на языке высокого уровня (Python).
+Задание №4, вариант 3
+Выполнил: Астраков Б. А.
+Группа: ПИЖ-б-о-23-1
+E-Mail: bororo8918@gmail.com
+"""
+
 from complex_number import ComplexNumber
 
 def main():
