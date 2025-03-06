@@ -6,7 +6,7 @@
 E-Mail: bororo8918@gmail.com
 """
 
-from complex_number import ComplexNumber
+import complex_number
 
 def main():
     # Создание комплексных чисел
