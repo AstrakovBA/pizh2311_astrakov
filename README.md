@@ -49,3 +49,12 @@
 ## Тестирование
 
 Для проверки структуры и функционала программы запустите скрипты из пути snake_project/tests.
+
+#### conftest.py:
+![test](snake_project/tests_img/conftest.png)
+
+#### test_code_structure.py:
+![test](snake_project/tests_img/test_code_structure.png)
+
+#### test_main.py:
+![test](snake_project/tests_img/test_main.png)
