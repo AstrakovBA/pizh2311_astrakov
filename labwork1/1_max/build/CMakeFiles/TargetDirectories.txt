@@ -1,0 +1,3 @@
+D:/УчёбаСКФУ/Отчёты/ООП C++/labwork1/1_max/build/CMakeFiles/1_max.dir
+D:/УчёбаСКФУ/Отчёты/ООП C++/labwork1/1_max/build/CMakeFiles/ALL_BUILD.dir
+D:/УчёбаСКФУ/Отчёты/ООП C++/labwork1/1_max/build/CMakeFiles/ZERO_CHECK.dir
