@@ -71,7 +71,7 @@ std::cout << c << std::endl;
 
 ### Результаты тестов
 
-![Tests](./tests_summary.png)
+![Tests](./test_summary.png)
 
 ## Структура проекта
 
