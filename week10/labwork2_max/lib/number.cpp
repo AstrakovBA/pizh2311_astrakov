@@ -4,320 +4,258 @@
  */
 
 #include "number.h"
-#include <iostream>
 #include <algorithm>
 #include <stdexcept>
-#include <cstring>
-
- /**
-  * @brief Максимальное значение типа uint2022_t (2^2022 - 1)
-  *
-  * Вычисляется при первом обращении как статическая константа.
-  * Последний блок битов корректируется для точного соответствия 2022 битам.
-  */
-const uint2022_t MAX_UINT2022 = []() {
-    uint2022_t max_num;
-    std::fill(max_num.parts.begin(), max_num.parts.end(), 0xFFFFFFFF);
-    // Корректировка последнего блока (2022 не кратно 32)
-    max_num.parts.back() >>= (32 - (2022 % 32));
-    return max_num;
-    }();
 
 /**
- * @brief Проверяет, не превышает ли число максимальное значение
- * @param num Проверяемое число
- * @throw std::overflow_error Если число превышает 2^2022 - 1
- *
- * Сравнивает по блокам начиная со старших разрядов.
- * Если все блоки равны максимальным - число допустимо.
+ * @brief Создает uint2022_t из 32-битного числа
+ * @param value Исходное 32-битное число
+ * @return Объект uint2022_t
  */
-static void check_overflow(const uint2022_t& num) {
-    for (int i = uint2022_t::UINTS_NEEDED - 1; i >= 0; --i) {
-        if (num.parts[i] > MAX_UINT2022.parts[i]) {
-            throw std::overflow_error("uint2022_t overflow");
+const uint2022_t uint2022_t::from_uint(uint32_t value) {
+    return uint2022_t(value);
+}
+
+/**
+ * @brief Создает uint2022_t из строки
+ * @param str Строка с десятичным числом
+ * @return Объект uint2022_t
+ * @throw std::invalid_argument При недопустимом формате строки
+ */
+const uint2022_t uint2022_t::from_string(const std::string& str) {
+    return uint2022_t(str);
+}
+
+/**
+ * @brief Конструктор по умолчанию (инициализирует нулем)
+ */
+uint2022_t::uint2022_t() : parts{} {}
+
+/**
+ * @brief Конструктор из 32-битного числа
+ * @param value Исходное число
+ */
+uint2022_t::uint2022_t(uint32_t value) : parts{} {
+    parts[0] = value; // Младший разряд
+}
+
+/**
+ * @brief Конструктор из строки
+ * @param str Строка с десятичным числом
+ * @throw std::invalid_argument При недопустимых символах или переполнении
+ * 
+ * Алгоритм:
+ * 1. Обрабатывает строку справа налево (от младших разрядов)
+ * 2. Для каждой цифры вычисляет ее вклад (digit * 10^n)
+ * 3. Накопливает результат через сложение
+ */
+uint2022_t::uint2022_t(const std::string& str) : parts{} {
+    if (str.empty()) {
+        throw std::invalid_argument("Empty string");
+    }
+
+    uint2022_t power_of_10(1); // Текущая степень 10 (10^n)
+    uint2022_t result;
+    
+    // Обработка цифр справа налево
+    for (auto it = str.rbegin(); it != str.rend(); ++it) {
+        if (*it < '0' || *it > '9') {
+            throw std::invalid_argument("Invalid character in string");
         }
-        else if (num.parts[i] < MAX_UINT2022.parts[i]) {
+        
+        uint32_t digit = *it - '0';
+        uint2022_t term = from_uint(digit) * power_of_10;
+        result = result + term;
+        
+        if (it != str.rend() - 1) {
+            power_of_10 = power_of_10 * from_uint(10);
+        }
+    }
+    
+    parts = result.parts;
+    check_overflow();
+}
+
+/**
+ * @brief Проверка на переполнение
+ * @throw std::overflow_error Если число превышает 2^2022-1
+ * 
+ * Сравнивает с предварительно вычисленным максимальным значением
+ */
+void uint2022_t::check_overflow() const {
+    // Лямбда для вычисления максимального значения (2^2022-1)
+    const uint2022_t max_value = []() {
+        uint2022_t max;
+        std::fill(max.parts.begin(), max.parts.end(), 0xFFFFFFFF);
+        max.parts.back() >>= (32 - (2022 % 32)); // Коррекция последнего блока
+        return max;
+    }();
+
+    // Поразрядное сравнение (от старших разрядов)
+    for (int i = UINTS_NEEDED - 1; i >= 0; --i) {
+        if (parts[i] > max_value.parts[i]) {
+            throw std::overflow_error("uint2022_t overflow");
+        } else if (parts[i] < max_value.parts[i]) {
             break; // Остальные разряды можно не проверять
         }
     }
 }
 
 /**
- * @brief Создает uint2022_t из 32-битного беззнакового числа
- * @param i Исходное 32-битное число
- * @return Число типа uint2022_t
- *
- * Записывает значение в младший 32-битный блок,
- * остальные блоки остаются нулевыми.
- */
-uint2022_t from_uint(uint32_t i) {
-    uint2022_t result;
-    result.parts[0] = i;
-    return result;
-}
-
-/**
- * @brief Создает uint2022_t из строки десятичных цифр
- * @param buff C-строка с десятичным числом
- * @return Число типа uint2022_t
- * @throw std::invalid_argument При недопустимых символах или длине строки
- *
- * Обрабатывает строку справа налево, накапливая результат
- * через умножение на степени 10 и сложение.
- */
-uint2022_t from_string(const char* buff) {
-    uint2022_t result;
-    uint2022_t power_of_10 = from_uint(1); // Текущая степень 10
-
-    size_t len = strlen(buff);
-    if (len == 0 || len > 610) { // 610 - макс. десятичных цифр для 2022 бит
-        throw std::invalid_argument("Invalid string length");
-    }
-
-    // Обработка каждой цифры, начиная с младших разрядов
-    for (size_t i = 0; i < len; ++i) {
-        char c = buff[len - 1 - i]; // Обрабатываем справа налево
-
-        if (c < '0' || c > '9') {
-            throw std::invalid_argument("Invalid character in string");
-        }
-
-        uint32_t digit = c - '0';
-        uint2022_t term = from_uint(digit);
-        term = term * power_of_10; // Умножаем цифру на текущую степень 10
-        result = result + term;    // Добавляем к результату
-
-        // Увеличиваем степень 10 для следующей цифры
-        if (i < len - 1) {
-            power_of_10 = power_of_10 * from_uint(10);
-        }
-    }
-
-    check_overflow(result);
-    return result;
-}
-
-/**
- * @brief Оператор сложения двух чисел uint2022_t
- * @param lhs Первое слагаемое
- * @param rhs Второе слагаемое
+ * @brief Оператор сложения
+ * @param other Слагаемое
  * @return Результат сложения
  * @throw std::overflow_error При переполнении
- *
- * Реализация через поразрядное сложение с переносом.
- * Перенос обрабатывается для каждого 32-битного блока.
+ * 
+ * Алгоритм:
+ * 1. Поразрядное сложение с переносом
+ * 2. Перенос сохраняется между итерациями
  */
-uint2022_t operator+(const uint2022_t& lhs, const uint2022_t& rhs) {
+uint2022_t uint2022_t::operator+(const uint2022_t& other) const {
     uint2022_t result;
     uint32_t carry = 0; // Перенос в старший разряд
-
-    for (size_t i = 0; i < uint2022_t::UINTS_NEEDED; ++i) {
-        uint64_t sum = (uint64_t)lhs.parts[i] + rhs.parts[i] + carry;
-        result.parts[i] = static_cast<uint32_t>(sum);
+    
+    for (size_t i = 0; i < UINTS_NEEDED; ++i) {
+        uint64_t sum = static_cast<uint64_t>(parts[i]) + other.parts[i] + carry;
+        result.parts[i] = static_cast<uint32_t>(sum & 0xFFFFFFFF);
         carry = static_cast<uint32_t>(sum >> 32);
     }
-
-    if (carry != 0) {
+    
+    if (carry) {
         throw std::overflow_error("Addition overflow");
     }
-
-    check_overflow(result);
+    
+    result.check_overflow();
     return result;
 }
 
 /**
- * @brief Оператор вычитания двух чисел uint2022_t
- * @param lhs Уменьшаемое
- * @param rhs Вычитаемое
+ * @brief Оператор вычитания
+ * @param other Вычитаемое
  * @return Результат вычитания
  * @throw std::underflow_error Если результат отрицательный
- *
- * Реализация через поразрядное вычитание с заёмом.
- * Если заём остается после обработки старшего разряда - результат отрицательный.
  */
-uint2022_t operator-(const uint2022_t& lhs, const uint2022_t& rhs) {
+uint2022_t uint2022_t::operator-(const uint2022_t& other) const {
     uint2022_t result;
-    uint32_t borrow = 0; // Заём из старшего разряда
-
-    for (size_t i = 0; i < uint2022_t::UINTS_NEEDED; ++i) {
-        uint64_t diff = (uint64_t)lhs.parts[i] - rhs.parts[i] - borrow;
-        result.parts[i] = static_cast<uint32_t>(diff);
-        borrow = (diff >> 32) ? 1 : 0; // Устанавливаем заём, если diff < 0
+    uint32_t borrow = 0; // Заем из старшего разряда
+    
+    for (size_t i = 0; i < UINTS_NEEDED; ++i) {
+        uint64_t diff = static_cast<uint64_t>(parts[i]) - other.parts[i] - borrow;
+        result.parts[i] = static_cast<uint32_t>(diff & 0xFFFFFFFF);
+        borrow = (diff >> 32) ? 1 : 0; // Установка заема
     }
-
-    if (borrow != 0) {
+    
+    if (borrow) {
         throw std::underflow_error("Subtraction underflow");
     }
-
     return result;
 }
 
 /**
- * @brief Оператор умножения двух чисел uint2022_t
- * @param lhs Первый множитель
- * @param rhs Второй множитель
+ * @brief Оператор умножения
+ * @param other Множитель
  * @return Результат умножения
  * @throw std::overflow_error При переполнении
- *
- * Реализация умножения "в столбик" с накоплением результата.
- * Каждый блок умножается на все блоки второго числа с учетом переносов.
+ * 
+ * Алгоритм "в столбик":
+ * 1. Умножение каждого разряда с накоплением результата
+ * 2. Учет переносов между разрядами
  */
-uint2022_t operator*(const uint2022_t& lhs, const uint2022_t& rhs) {
+uint2022_t uint2022_t::operator*(const uint2022_t& other) const {
     uint2022_t result;
-
-    for (size_t i = 0; i < uint2022_t::UINTS_NEEDED; ++i) {
+    
+    for (size_t i = 0; i < UINTS_NEEDED; ++i) {
         uint32_t carry = 0;
-        for (size_t j = 0; j < uint2022_t::UINTS_NEEDED - i; ++j) {
-            uint64_t product = (uint64_t)lhs.parts[i] * rhs.parts[j] +
-                result.parts[i + j] + carry;
-            result.parts[i + j] = static_cast<uint32_t>(product);
+        for (size_t j = 0; j < UINTS_NEEDED - i; ++j) {
+            uint64_t product = static_cast<uint64_t>(parts[i]) * other.parts[j] 
+                             + result.parts[i + j] + carry;
+            result.parts[i + j] = static_cast<uint32_t>(product & 0xFFFFFFFF);
             carry = static_cast<uint32_t>(product >> 32);
         }
-
-        // Проверка на переполнение при наличии переноса
-        if (carry != 0 && i + uint2022_t::UINTS_NEEDED < uint2022_t::UINTS_NEEDED) {
+        
+        if (carry) {
             throw std::overflow_error("Multiplication overflow");
         }
     }
-
-    check_overflow(result);
+    
+    result.check_overflow();
     return result;
 }
 
 /**
  * @brief Оператор сравнения на равенство
- * @param lhs Первое число
- * @param rhs Второе число
- * @return true если числа равны, иначе false
- *
- * Поразрядное сравнение всех 32-битных блоков.
+ * @param other Число для сравнения
+ * @return true если числа равны
  */
-bool operator==(const uint2022_t& lhs, const uint2022_t& rhs) {
-    for (size_t i = 0; i < uint2022_t::UINTS_NEEDED; ++i) {
-        if (lhs.parts[i] != rhs.parts[i]) {
-            return false;
-        }
-    }
-    return true;
+bool uint2022_t::operator==(const uint2022_t& other) const {
+    return parts == other.parts;
 }
 
 /**
  * @brief Оператор сравнения на неравенство
- * @param lhs Первое число
- * @param rhs Второе число
- * @return true если числа не равны, иначе false
+ * @param other Число для сравнения
+ * @return true если числа не равны
  */
-bool operator!=(const uint2022_t& lhs, const uint2022_t& rhs) {
-    return !(lhs == rhs);
+bool uint2022_t::operator!=(const uint2022_t& other) const {
+    return !(*this == other);
 }
 
 /**
- * @brief Оператор "меньше" для сравнения uint2022_t
- * @param lhs Первое число
- * @param rhs Второе число
- * @return true если lhs < rhs, иначе false
- *
+ * @brief Оператор "меньше"
+ * @param other Число для сравнения
+ * @return true если текущее число меньше other
+ * 
  * Сравнение выполняется от старших разрядов к младшим
  */
-bool operator<(const uint2022_t& lhs, const uint2022_t& rhs) {
-    for (int i = uint2022_t::UINTS_NEEDED - 1; i >= 0; --i) {
-        if (lhs.parts[i] < rhs.parts[i]) {
-            return true;
-        }
-        else if (lhs.parts[i] > rhs.parts[i]) {
-            return false;
-        }
+bool uint2022_t::operator<(const uint2022_t& other) const {
+    for (int i = UINTS_NEEDED - 1; i >= 0; --i) {
+        if (parts[i] < other.parts[i]) return true;
+        if (parts[i] > other.parts[i]) return false;
     }
     return false; // Все разряды равны
 }
 
 /**
- * @brief Оператор "меньше или равно" для сравнения uint2022_t
- * @param lhs Первое число
- * @param rhs Второе число
- * @return true если lhs <= rhs, иначе false
+ * @brief Оператор "меньше или равно"
+ * @param other Число для сравнения
+ * @return true если текущее число <= other
  */
-bool operator<=(const uint2022_t& lhs, const uint2022_t& rhs) {
-    return (lhs < rhs) || (lhs == rhs);
+bool uint2022_t::operator<=(const uint2022_t& other) const {
+    return (*this < other) || (*this == other);
 }
 
 /**
- * @brief Оператор целочисленного деления
- * @param lhs Делимое
- * @param rhs Делитель
- * @return Результат деления
- * @throw std::invalid_argument При делении на ноль
- *
- * Реализация через метод нормализации и последовательного вычитания.
- * Делитель нормализуется сдвигами до достижения делимого.
- */
-uint2022_t operator/(const uint2022_t& lhs, const uint2022_t& rhs) {
-    if (rhs == from_uint(0)) {
-        throw std::invalid_argument("Division by zero");
-    }
-
-    if (lhs < rhs) {
-        return from_uint(0); // Делимое меньше делителя
-    }
-
-    uint2022_t quotient;
-    uint2022_t remainder = lhs;
-    uint2022_t current_divisor = rhs;
-    uint2022_t current_quotient = from_uint(1);
-
-    // Нормализация делителя
-    while (current_divisor <= remainder) {
-        current_divisor = current_divisor + current_divisor;
-        current_quotient = current_quotient + current_quotient;
-    }
-
-    // Постепенное уменьшение делителя
-    while (current_quotient != from_uint(0)) {
-        if (current_divisor <= remainder) {
-            remainder = remainder - current_divisor;
-            quotient = quotient + current_quotient;
-        }
-
-        // Уменьшаем делитель и частное в 2 раза
-        current_divisor = current_divisor - (current_divisor / from_uint(2));
-        current_quotient = current_quotient / from_uint(2);
-    }
-
-    return quotient;
-}
-
-/**
- * @brief Оператор вывода числа в поток
- * @param stream Выходной поток
- * @param value Выводимое число
+ * @brief Оператор вывода в поток
+ * @param out Выходной поток
+ * @param value Число для вывода
  * @return Ссылка на поток
- *
- * Преобразует число в десятичную строку через последовательное деление на 10.
- * Цифры собираются в обратном порядке и разворачиваются перед выводом.
+ * 
+ * Алгоритм:
+ * 1. Последовательное деление на 10 для получения цифр
+ * 2. Цифры собираются в обратном порядке
+ * 3. Результат разворачивается перед выводом
  */
-std::ostream& operator<<(std::ostream& stream, const uint2022_t& value) {
-    if (value == from_uint(0)) {
-        stream << "0";
-        return stream;
+std::ostream& operator<<(std::ostream& out, const uint2022_t& value) {
+    if (value == uint2022_t::from_uint(0)) {
+        out << "0";
+        return out;
     }
-
+    
     uint2022_t tmp = value;
     std::string result;
-
-    // Последовательное деление на 10 для получения цифр
-    while (tmp != from_uint(0)) {
+    
+    while (tmp != uint2022_t::from_uint(0)) {
         uint32_t remainder = 0;
         // Деление всего числа на 10
         for (size_t i = uint2022_t::UINTS_NEEDED; i-- > 0; ) {
-            uint64_t value = (static_cast<uint64_t>(remainder) << 32) | tmp.parts[i];
-            tmp.parts[i] = static_cast<uint32_t>(value / 10);
-            remainder = static_cast<uint32_t>(value % 10);
+            uint64_t current = (static_cast<uint64_t>(remainder) << 32) | tmp.parts[i];
+            tmp.parts[i] = static_cast<uint32_t>(current / 10);
+            remainder = static_cast<uint32_t>(current % 10);
         }
         result.push_back('0' + remainder);
     }
-
-    // Цифры были получены в обратном порядке
+    
     std::reverse(result.begin(), result.end());
-    stream << result;
-    return stream;
+    out << result;
+    return out;
 }
