@@ -1,106 +1,109 @@
 #pragma once
+#include <array>
 #include <cstdint>
 #include <iostream>
-#include <array>
+#include <string>
 
 /**
- * @brief Структура, представляющая 2022-битное беззнаковое целое число.
+ * @class uint2022_t
+ * @brief Класс для работы с 2022-битными беззнаковыми целыми числами
  * 
- * Хранит число в виде массива десятичных цифр (Little-Endian).
- * Максимальное значение: 2²⁰²² - 1 (≈ 10⁶¹⁰).
+ * Реализует основные арифметические операции и поддерживает создание
+ * из стандартных типов и строк. Размер числа фиксирован - ровно 2022 бита.
  */
-struct uint2022_t {
-    static constexpr size_t BITS = 2022;
-    static constexpr size_t UINTS_NEEDED = (BITS + 31) / 32; // 64 элемента uint32_t (256 байт)
-    std::array<uint32_t, UINTS_NEEDED> parts{}; // Храним число в виде 32-битных блоков
+class uint2022_t {
+private:
+    static constexpr size_t BITS = 2022;          ///< Количество бит в числе
+    static constexpr size_t UINTS_NEEDED = (BITS + 31) / 32; ///< Количество 32-битных слов
+    std::array<uint32_t, UINTS_NEEDED> parts;     ///< Массив для хранения битов числа
 
-    uint2022_t() = default;
+    /**
+     * @brief Проверяет переполнение числа
+     * @throw std::overflow_error Если число превышает 2^2022-1
+     */
+    void check_overflow() const;
+
+    /**
+     * @brief Нормализует число (убирает ведущие нули)
+     */
+    void normalize();
+
+public:
+    // Конструкторы
+    /**
+     * @brief Конструктор по умолчанию (инициализирует нулем)
+     */
+    uint2022_t();
+
+    /**
+     * @brief Конструктор из 32-битного беззнакового числа
+     * @param value Значение для инициализации
+     */
+    explicit uint2022_t(uint32_t value);
+
+    /**
+     * @brief Конструктор из строки
+     * @param str Строка с десятичным числом
+     * @throw std::invalid_argument При недопустимых символах или переполнении
+     */
+    explicit uint2022_t(const std::string& str);
+
+    // Статические фабричные методы
+    /**
+     * @brief Создает число из uint32_t
+     * @param value Исходное значение
+     * @return uint2022_t
+     */
+    static uint2022_t from_uint(uint32_t value);
+
+    /**
+     * @brief Создает число из строки
+     * @param str Строка с десятичным числом
+     * @return uint2022_t
+     * @throw std::invalid_argument При ошибках формата
+     */
+    static uint2022_t from_string(const std::string& str);
+
+    // Арифметические операции
+    /**
+     * @brief Оператор сложения
+     * @param other Слагаемое
+     * @return Результат сложения
+     * @throw std::overflow_error При переполнении
+     */
+    uint2022_t operator+(const uint2022_t& other) const;
+
+    /// @brief Оператор вычитания
+    uint2022_t operator-(const uint2022_t& other) const;
+    
+    /// @brief Оператор умножения
+    uint2022_t operator*(const uint2022_t& other) const;
+    
+    /// @brief Оператор деления
+    uint2022_t operator/(const uint2022_t& other) const;
+
+    // Операторы сравнения
+    /// @brief Оператор равенства
+    bool operator==(const uint2022_t& other) const;
+    
+    /// @brief Оператор неравенства
+    bool operator!=(const uint2022_t& other) const;
+    
+    /// @brief Оператор "меньше"
+    bool operator<(const uint2022_t& other) const;
+    
+    /// @brief Оператор "меньше или равно"
+    bool operator<=(const uint2022_t& other) const;
+
+    // Ввод/вывод
+    /**
+     * @brief Оператор вывода в поток
+     * @param out Выходной поток
+     * @param value Выводимое значение
+     * @return Поток для чейнинга
+     */
+    friend std::ostream& operator<<(std::ostream& out, const uint2022_t& value);
 };
 
-// Проверка размера (не более 300 байт)
+/// Проверка размера структуры
 static_assert(sizeof(uint2022_t) <= 300, "Size of uint2022_t must be no higher than 300 bytes");
-
-// Проверка переполнения (можно отключить, если написать 0 вместо 1)
-#define UINT2022_OVERFLOW_CHECK 1
-
-/**
- * @brief Создает uint2022_t из 32-битного числа.
- * @param i Исходное число (uint32_t).
- * @return Число типа uint2022_t.
- */
-uint2022_t from_uint(uint32_t i);
-
-/**
- * @brief Создает uint2022_t из строки (десятичной записи).
- * @param buff Строка, содержащая число (например, "123456").
- * @return Число типа uint2022_t.
- * @throws std::invalid_argument Если строка некорректна.
- */
-uint2022_t from_string(const char* buff);
-
-/**
- * @brief Сложение двух чисел uint2022_t.
- * @param lhs Первое слагаемое.
- * @param rhs Второе слагаемое.
- * @return Результат сложения.
- * @throws std::overflow_error Если результат превышает 2²⁰²² - 1.
- */
-uint2022_t operator+(const uint2022_t& lhs, const uint2022_t& rhs);
-
-/**
- * @brief Вычитание двух чисел uint2022_t.
- * @param lhs Уменьшаемое.
- * @param rhs Вычитаемое.
- * @return Результат вычитания.
- * @throws std::underflow_error Если результат отрицательный.
- */
-uint2022_t operator-(const uint2022_t& lhs, const uint2022_t& rhs);
-
-/**
- * @brief Умножение двух чисел uint2022_t.
- * @param lhs Первый множитель.
- * @param rhs Второй множитель.
- * @return Результат умножения.
- * @throws std::overflow_error Если результат превышает 2²⁰²² - 1.
- */
-uint2022_t operator*(const uint2022_t& lhs, const uint2022_t& rhs);
-
-/**
- * @brief Деление двух чисел uint2022_t.
- * @param lhs Делимое.
- * @param rhs Делитель.
- * @return Результат деления.
- * @throws std::invalid_argument Если делитель равен нулю.
- */
-uint2022_t operator/(const uint2022_t& lhs, const uint2022_t& rhs);
-
-/**
- * @brief Проверка на равенство двух чисел.
- * @param lhs Первое число.
- * @param rhs Второе число.
- * @return true, если числа равны, иначе false.
- */
-bool operator==(const uint2022_t& lhs, const uint2022_t& rhs);
-
-/**
- * @brief Проверка на неравенство двух чисел.
- * @param lhs Первое число.
- * @param rhs Второе число.
- * @return true, если числа не равны, иначе false.
- */
-bool operator!=(const uint2022_t& lhs, const uint2022_t& rhs);
-
-/**
- * @brief Вывод числа в поток.
- * @param stream Выходной поток (например, std::cout).
- * @param value Число для вывода.
- * @return Ссылка на поток.
- */
-std::ostream& operator<<(std::ostream& stream, const uint2022_t& value);
-
-/**
- * @brief Проверяет, не превышает ли число максимально допустимое значение (2²⁰²² - 1).
- * @param num Число для проверки.
- * @throws std::overflow_error Если число слишком большое.
- */
-void check_overflow(const uint2022_t& num);
