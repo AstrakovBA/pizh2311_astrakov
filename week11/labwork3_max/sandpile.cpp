@@ -1,53 +1,47 @@
 /**
  * @file sandpile.cpp
- * @brief Реализация модели песчаной кучи с сохранением состояний в BMP
+ * @brief Р РµР°Р»РёР·Р°С†РёСЏ РјРѕРґРµР»Рё РїРµСЃС‡Р°РЅРѕР№ РєСѓС‡Рё СЃ СЃРѕС…СЂР°РЅРµРЅРёРµРј СЃРѕСЃС‚РѕСЏРЅРёР№ РІ BMP
  */
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
+#include <filesystem>
 #include <cstdint>
 #include <algorithm>
 #include <unordered_map>
 
- // Для filesystem требуется C++17
-#if __cplusplus >= 201703L
-#include <filesystem>
 namespace fs = std::filesystem;
-#else
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#endif
 
-// Цвета для разных количеств песчинок
+// Р¦РІРµС‚Р° РґР»СЏ СЂР°Р·РЅС‹С… РєРѕР»РёС‡РµСЃС‚РІ РїРµСЃС‡РёРЅРѕРє
 struct Color {
     uint8_t r, g, b;
 };
 
 const std::unordered_map<uint64_t, Color> COLOR_MAP = {
-    {0, {255, 255, 255}}, // Белый
-    {1, {0, 255, 0}},      // Зеленый
-    {2, {128, 0, 128}},    // Фиолетовый
-    {3, {255, 255, 0}},    // Желтый
-    // Для >3 используется черный (определяется в функции get_color)
+    {0, {255, 255, 255}}, // Р‘РµР»С‹Р№
+    {1, {0, 255, 0}},      // Р—РµР»РµРЅС‹Р№
+    {2, {128, 0, 128}},    // Р¤РёРѕР»РµС‚РѕРІС‹Р№
+    {3, {255, 255, 0}},    // Р–РµР»С‚С‹Р№
+    // Р”Р»СЏ >3 РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‡РµСЂРЅС‹Р№ (РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё get_color)
 };
 
 /**
- * @brief Получает цвет пикселя на основе количества песчинок
- * @param grains Количество песчинок в ячейке
- * @return Структура Color с компонентами RGB
+ * @brief РџРѕР»СѓС‡Р°РµС‚ С†РІРµС‚ РїРёРєСЃРµР»СЏ РЅР° РѕСЃРЅРѕРІРµ РєРѕР»РёС‡РµСЃС‚РІР° РїРµСЃС‡РёРЅРѕРє
+ * @param grains РљРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЃС‡РёРЅРѕРє РІ СЏС‡РµР№РєРµ
+ * @return РЎС‚СЂСѓРєС‚СѓСЂР° Color СЃ РєРѕРјРїРѕРЅРµРЅС‚Р°РјРё RGB
  */
-static Color get_color(uint64_t grains) {
+Color get_color(uint64_t grains) {
     auto it = COLOR_MAP.find(grains);
     if (it != COLOR_MAP.end()) {
         return it->second;
     }
-    return { 0, 0, 0 }; // Черный для >3
+    return {0, 0, 0}; // Р§РµСЂРЅС‹Р№ РґР»СЏ >3
 }
 
 /**
- * @brief Представляет модель песчаной кучи
+ * @brief РџСЂРµРґСЃС‚Р°РІР»СЏРµС‚ РјРѕРґРµР»СЊ РїРµСЃС‡Р°РЅРѕР№ РєСѓС‡Рё
  */
 class SandpileModel {
 private:
@@ -58,17 +52,17 @@ private:
 
 public:
     /**
-     * @brief Конструктор модели
-     * @param w Ширина сетки
-     * @param l Длина сетки
+     * @brief РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РјРѕРґРµР»Рё
+     * @param w РЁРёСЂРёРЅР° СЃРµС‚РєРё
+     * @param l Р”Р»РёРЅР° СЃРµС‚РєРё
      */
     SandpileModel(uint16_t w, uint16_t l) : width(w), length(l), stable(false) {
         grid.resize(length, std::vector<uint64_t>(width, 0));
     }
 
     /**
-     * @brief Загружает начальное состояние из TSV файла
-     * @param filename Путь к TSV файлу
+     * @brief Р—Р°РіСЂСѓР¶Р°РµС‚ РЅР°С‡Р°Р»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РёР· TSV С„Р°Р№Р»Р°
+     * @param filename РџСѓС‚СЊ Рє TSV С„Р°Р№Р»Сѓ
      */
     void load_initial_state(const std::string& filename) {
         std::ifstream file(filename);
@@ -86,15 +80,15 @@ public:
     }
 
     /**
-     * @brief Проверяет, стабильна ли модель
-     * @return true, если модель стабильна, иначе false
+     * @brief РџСЂРѕРІРµСЂСЏРµС‚, СЃС‚Р°Р±РёР»СЊРЅР° Р»Рё РјРѕРґРµР»СЊ
+     * @return true, РµСЃР»Рё РјРѕРґРµР»СЊ СЃС‚Р°Р±РёР»СЊРЅР°, РёРЅР°С‡Рµ false
      */
     bool is_stable() const {
         return stable;
     }
 
     /**
-     * @brief Выполняет одну итерацию модели
+     * @brief Р’С‹РїРѕР»РЅСЏРµС‚ РѕРґРЅСѓ РёС‚РµСЂР°С†РёСЋ РјРѕРґРµР»Рё
      */
     void iterate() {
         stable = true;
@@ -105,11 +99,11 @@ public:
                 if (grid[y][x] > 3) {
                     stable = false;
                     new_grid[y][x] -= 4;
-                    // Распределяем песчинки соседям
-                    if (x > 0) new_grid[y][x - 1] += 1;
-                    if (x < width - 1) new_grid[y][x + 1] += 1;
-                    if (y > 0) new_grid[y - 1][x] += 1;
-                    if (y < length - 1) new_grid[y + 1][x] += 1;
+                    // Р Р°СЃРїСЂРµРґРµР»СЏРµРј РїРµСЃС‡РёРЅРєРё СЃРѕСЃРµРґСЏРј
+                    if (x > 0) new_grid[y][x-1]++;
+                    if (x < width - 1) new_grid[y][x+1]++;
+                    if (y > 0) new_grid[y-1][x]++;
+                    if (y < length - 1) new_grid[y+1][x]++;
                 }
             }
         }
@@ -118,8 +112,8 @@ public:
     }
 
     /**
-     * @brief Сохраняет текущее состояние в BMP файл
-     * @param filename Путь к выходному файлу
+     * @brief РЎРѕС…СЂР°РЅСЏРµС‚ С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РІ BMP С„Р°Р№Р»
+     * @param filename РџСѓС‚СЊ Рє РІС‹С…РѕРґРЅРѕРјСѓ С„Р°Р№Р»Сѓ
      */
     void save_to_bmp(const std::string& filename) const {
         std::ofstream file(filename, std::ios::binary);
@@ -127,23 +121,23 @@ public:
             throw std::runtime_error("Cannot open output file: " + filename);
         }
 
-        // Размер файла: заголовок (54 байта) + данные (3 * width * length)
-        uint32_t file_size = 54 + 3 * static_cast<uint32_t>(width) * length;
+        // Р Р°Р·РјРµСЂ С„Р°Р№Р»Р°: Р·Р°РіРѕР»РѕРІРѕРє (54 Р±Р°Р№С‚Р°) + РґР°РЅРЅС‹Рµ (3 * width * length)
+        uint32_t file_size = 54 + 3 * width * length;
         uint32_t data_offset = 54;
         uint32_t header_size = 40;
         uint16_t planes = 1;
         uint16_t bits_per_pixel = 24;
         uint32_t compression = 0;
-        uint32_t image_size = 3 * static_cast<uint32_t>(width) * length;
+        uint32_t image_size = 3 * width * length;
         int32_t x_pixels_per_meter = 2835; // 72 dpi
         int32_t y_pixels_per_meter = 2835; // 72 dpi
         uint32_t colors_used = 0;
         uint32_t important_colors = 0;
 
-        // Заголовок BMP файла
-        file.write("BM", 2); // Сигнатура
+        // Р—Р°РіРѕР»РѕРІРѕРє BMP С„Р°Р№Р»Р°
+        file.write("BM", 2); // РЎРёРіРЅР°С‚СѓСЂР°
         file.write(reinterpret_cast<const char*>(&file_size), 4);
-        file.write("\0\0\0\0", 4); // Зарезервировано
+        file.write("\0\0\0\0", 4); // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ
         file.write(reinterpret_cast<const char*>(&data_offset), 4);
         file.write(reinterpret_cast<const char*>(&header_size), 4);
         file.write(reinterpret_cast<const char*>(&width), 4);
@@ -157,15 +151,15 @@ public:
         file.write(reinterpret_cast<const char*>(&colors_used), 4);
         file.write(reinterpret_cast<const char*>(&important_colors), 4);
 
-        // Данные изображения (пиксели)
-        // BMP хранит строки снизу вверх и выравнивает по 4 байта
+        // Р”Р°РЅРЅС‹Рµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (РїРёРєСЃРµР»Рё)
+        // BMP С…СЂР°РЅРёС‚ СЃС‚СЂРѕРєРё СЃРЅРёР·Сѓ РІРІРµСЂС… Рё РІС‹СЂР°РІРЅРёРІР°РµС‚ РїРѕ 4 Р±Р°Р№С‚Р°
         uint32_t row_padding = (4 - (width * 3) % 4) % 4;
-        uint8_t padding[3] = { 0, 0, 0 };
+        uint8_t padding[3] = {0, 0, 0};
 
-        for (int y = static_cast<int>(length) - 1; y >= 0; --y) {
+        for (int y = length - 1; y >= 0; --y) {
             for (uint16_t x = 0; x < width; ++x) {
                 Color color = get_color(grid[y][x]);
-                file.write(reinterpret_cast<const char*>(&color.b), 1); // BMP порядок: BGR
+                file.write(reinterpret_cast<const char*>(&color.b), 1); // BMP РїРѕСЂСЏРґРѕРє: BGR
                 file.write(reinterpret_cast<const char*>(&color.g), 1);
                 file.write(reinterpret_cast<const char*>(&color.r), 1);
             }
@@ -177,38 +171,33 @@ public:
 };
 
 /**
- * @brief Обрабатывает аргументы командной строки
- * @param argc Количество аргументов
- * @param argv Массив аргументов
- * @param width Возвращаемая ширина сетки
- * @param length Возвращаемая длина сетки
- * @param input_file Возвращаемый путь к входному файлу
- * @param output_dir Возвращаемый путь к выходной директории
- * @param max_iter Возвращаемое максимальное число итераций
- * @param freq Возвращаемая частота сохранения
+ * @brief РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ Р°СЂРіСѓРјРµРЅС‚С‹ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё
+ * @param argc РљРѕР»РёС‡РµСЃС‚РІРѕ Р°СЂРіСѓРјРµРЅС‚РѕРІ
+ * @param argv РњР°СЃСЃРёРІ Р°СЂРіСѓРјРµРЅС‚РѕРІ
+ * @param width Р’РѕР·РІСЂР°С‰Р°РµРјР°СЏ С€РёСЂРёРЅР° СЃРµС‚РєРё
+ * @param length Р’РѕР·РІСЂР°С‰Р°РµРјР°СЏ РґР»РёРЅР° СЃРµС‚РєРё
+ * @param input_file Р’РѕР·РІСЂР°С‰Р°РµРјС‹Р№ РїСѓС‚СЊ Рє РІС…РѕРґРЅРѕРјСѓ С„Р°Р№Р»Сѓ
+ * @param output_dir Р’РѕР·РІСЂР°С‰Р°РµРјС‹Р№ РїСѓС‚СЊ Рє РІС‹С…РѕРґРЅРѕР№ РґРёСЂРµРєС‚РѕСЂРёРё
+ * @param max_iter Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ РёС‚РµСЂР°С†РёР№
+ * @param freq Р’РѕР·РІСЂР°С‰Р°РµРјР°СЏ С‡Р°СЃС‚РѕС‚Р° СЃРѕС…СЂР°РЅРµРЅРёСЏ
  */
-static void parse_arguments(int argc, char* argv[],
-    uint16_t& width, uint16_t& length,
-    std::string& input_file, std::string& output_dir,
-    uint32_t& max_iter, uint32_t& freq) {
+void parse_arguments(int argc, char* argv[], 
+                     uint16_t& width, uint16_t& length, 
+                     std::string& input_file, std::string& output_dir,
+                     uint32_t& max_iter, uint32_t& freq) {
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "-l" || arg == "--length") {
             if (i + 1 < argc) length = static_cast<uint16_t>(std::stoi(argv[++i]));
-        }
-        else if (arg == "-w" || arg == "--width") {
+        } else if (arg == "-w" || arg == "--width") {
             if (i + 1 < argc) width = static_cast<uint16_t>(std::stoi(argv[++i]));
-        }
-        else if (arg == "-i" || arg == "--input") {
+        } else if (arg == "-i" || arg == "--input") {
             if (i + 1 < argc) input_file = argv[++i];
-        }
-        else if (arg == "-o" || arg == "--output") {
+        } else if (arg == "-o" || arg == "--output") {
             if (i + 1 < argc) output_dir = argv[++i];
-        }
-        else if (arg == "-m" || arg == "--max-iter") {
+        } else if (arg == "-m" || arg == "--max-iter") {
             if (i + 1 < argc) max_iter = static_cast<uint32_t>(std::stoi(argv[++i]));
-        }
-        else if (arg == "-f" || arg == "--freq") {
+        } else if (arg == "-f" || arg == "--freq") {
             if (i + 1 < argc) freq = static_cast<uint32_t>(std::stoi(argv[++i]));
         }
     }
@@ -216,7 +205,7 @@ static void parse_arguments(int argc, char* argv[],
 
 int main(int argc, char* argv[]) {
     try {
-        // Параметры по умолчанию
+        // РџР°СЂР°РјРµС‚СЂС‹ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         uint16_t width = 10;
         uint16_t length = 10;
         std::string input_file = "input.tsv";
@@ -224,39 +213,38 @@ int main(int argc, char* argv[]) {
         uint32_t max_iter = 100;
         uint32_t freq = 1;
 
-        // Разбор аргументов командной строки
+        // Р Р°Р·Р±РѕСЂ Р°СЂРіСѓРјРµРЅС‚РѕРІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё
         parse_arguments(argc, argv, width, length, input_file, output_dir, max_iter, freq);
 
-        // Создаем выходную директорию, если ее нет
+        // РЎРѕР·РґР°РµРј РІС‹С…РѕРґРЅСѓСЋ РґРёСЂРµРєС‚РѕСЂРёСЋ, РµСЃР»Рё РµРµ РЅРµС‚
         if (!fs::exists(output_dir)) {
             fs::create_directory(output_dir);
         }
 
-        // Инициализация модели
+        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјРѕРґРµР»Рё
         SandpileModel model(width, length);
         model.load_initial_state(input_file);
 
-        // Основной цикл модели
+        // РћСЃРЅРѕРІРЅРѕР№ С†РёРєР» РјРѕРґРµР»Рё
         for (uint32_t iter = 0; iter < max_iter; ++iter) {
-            // Сохраняем состояние, если нужно
+            // РЎРѕС…СЂР°РЅСЏРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ, РµСЃР»Рё РЅСѓР¶РЅРѕ
             if (freq > 0 && (iter % freq == 0 || iter == max_iter - 1 || model.is_stable())) {
                 std::string filename = output_dir + "/state_" + std::to_string(iter) + ".bmp";
                 model.save_to_bmp(filename);
             }
 
-            // Проверяем стабильность
+            // РџСЂРѕРІРµСЂСЏРµРј СЃС‚Р°Р±РёР»СЊРЅРѕСЃС‚СЊ
             if (model.is_stable()) {
                 std::cout << "Model stabilized after " << iter << " iterations." << std::endl;
                 break;
             }
 
-            // Выполняем итерацию
+            // Р’С‹РїРѕР»РЅСЏРµРј РёС‚РµСЂР°С†РёСЋ
             model.iterate();
         }
 
         return 0;
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
