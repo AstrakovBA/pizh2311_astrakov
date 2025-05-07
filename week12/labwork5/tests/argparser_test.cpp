@@ -117,19 +117,24 @@ TEST(ArgParserTestSuite, FlagTest) {
 
 TEST(ArgParserTestSuite, FlagsTest) {
     ArgParser parser("My Parser");
-    bool flag3 = true;
+    bool flag3 ;
+    parser.AddFlag('a', "flag1");
+    parser.AddFlag('b', "flag2").Default(true);
+    parser.AddFlag('c', "flag3").StoreValue(flag3);
 
-    ASSERT_TRUE(true);
-    ASSERT_TRUE(true);
-    ASSERT_TRUE(true);
+    ASSERT_TRUE(parser.Parse(SplitString("app -ac")));
+    ASSERT_TRUE(parser.GetFlag("flag1"));
+    ASSERT_TRUE(parser.GetFlag("flag2"));
     ASSERT_TRUE(flag3);
 }
 
 
 TEST(ArgParserTestSuite, PositionalArgTest) {
-    std::vector<int> values = { 1, 2, 3, 4, 5 };
+    ArgParser parser("My Parser");
+    std::vector<int> values;
+    parser.AddIntArgument("Param1").MultiValue(1).Positional().StoreValues(values);
 
-    ASSERT_TRUE(true);
+    ASSERT_TRUE(parser.Parse(SplitString("app 1 2 3 4 5")));
     ASSERT_EQ(values[0], 1);
     ASSERT_EQ(values[2], 3);
     ASSERT_EQ(values.size(), 5);
