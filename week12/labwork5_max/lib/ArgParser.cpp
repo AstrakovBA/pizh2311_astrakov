@@ -4,20 +4,20 @@
 namespace ArgumentParser {
 
     /**
-     * @brief Конструктор парсера аргументов
-     * @param programName Название программы для вывода в справке
+     * @brief РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїР°СЂСЃРµСЂР° Р°СЂРіСѓРјРµРЅС‚РѕРІ
+     * @param programName РќР°Р·РІР°РЅРёРµ РїСЂРѕРіСЂР°РјРјС‹ РґР»СЏ РІС‹РІРѕРґР° РІ СЃРїСЂР°РІРєРµ
      */
     ArgParser::ArgParser(const std::string& programName)
         : programName_(programName) {
     }
 
     /**
-     * @brief Создает новую опцию в парсере
-     * @param type Тип опции (строка, число, флаг и т.д.)
-     * @param shortName Короткое имя опции (одиночный символ)
-     * @param longName Длинное имя опции
-     * @param description Описание опции для справки
-     * @return Ссылка на созданную опцию
+     * @brief РЎРѕР·РґР°РµС‚ РЅРѕРІСѓСЋ РѕРїС†РёСЋ РІ РїР°СЂСЃРµСЂРµ
+     * @param type РўРёРї РѕРїС†РёРё (СЃС‚СЂРѕРєР°, С‡РёСЃР»Рѕ, С„Р»Р°Рі Рё С‚.Рґ.)
+     * @param shortName РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ РѕРїС†РёРё (РѕРґРёРЅРѕС‡РЅС‹Р№ СЃРёРјРІРѕР»)
+     * @param longName Р”Р»РёРЅРЅРѕРµ РёРјСЏ РѕРїС†РёРё
+     * @param description РћРїРёСЃР°РЅРёРµ РѕРїС†РёРё РґР»СЏ СЃРїСЂР°РІРєРё
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРѕР·РґР°РЅРЅСѓСЋ РѕРїС†РёСЋ
      */
     ArgParser::Option& ArgParser::CreateOption(ArgType type, char shortName, const std::string& longName, const std::string& description) {
         options_.push_back({});
@@ -35,21 +35,21 @@ namespace ArgumentParser {
         return opt;
     }
 
-    // Реализации методов ArgBuilder
+    // Р РµР°Р»РёР·Р°С†РёРё РјРµС‚РѕРґРѕРІ ArgBuilder
 
     /**
-     * @brief Конструктор построителя аргументов
-     * @param parser Ссылка на парсер аргументов
-     * @param index Индекс опции в списке
+     * @brief РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕСЃС‚СЂРѕРёС‚РµР»СЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ
+     * @param parser РЎСЃС‹Р»РєР° РЅР° РїР°СЂСЃРµСЂ Р°СЂРіСѓРјРµРЅС‚РѕРІ
+     * @param index РРЅРґРµРєСЃ РѕРїС†РёРё РІ СЃРїРёСЃРєРµ
      */
     ArgParser::ArgBuilder::ArgBuilder(ArgParser& parser, size_t index)
         : parser_(parser), index_(index) {
     }
 
     /**
-     * @brief Устанавливает строковое значение по умолчанию
-     * @param defaultValue Значение по умолчанию
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ СЃС‚СЂРѕРєРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+     * @param defaultValue Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::Default(const std::string& defaultValue) {
         auto& opt = parser_.options_[index_];
@@ -59,9 +59,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Устанавливает целочисленное значение по умолчанию
-     * @param defaultValue Значение по умолчанию
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С†РµР»РѕС‡РёСЃР»РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+     * @param defaultValue Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::Default(int defaultValue) {
         auto& opt = parser_.options_[index_];
@@ -71,9 +71,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Устанавливает булево значение по умолчанию
-     * @param defaultValue Значение по умолчанию
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ Р±СѓР»РµРІРѕ Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+     * @param defaultValue Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::Default(bool defaultValue) {
         auto& opt = parser_.options_[index_];
@@ -83,9 +83,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Указывает переменную для сохранения строкового значения
-     * @param out Ссылка на переменную для сохранения
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈРєР°Р·С‹РІР°РµС‚ РїРµСЂРµРјРµРЅРЅСѓСЋ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃС‚СЂРѕРєРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
+     * @param out РЎСЃС‹Р»РєР° РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::StoreValue(std::string& out) {
         parser_.options_[index_].storeString = &out;
@@ -93,9 +93,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Указывает вектор для сохранения нескольких строковых значений
-     * @param out Ссылка на вектор для сохранения
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈРєР°Р·С‹РІР°РµС‚ РІРµРєС‚РѕСЂ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РЅРµСЃРєРѕР»СЊРєРёС… СЃС‚СЂРѕРєРѕРІС‹С… Р·РЅР°С‡РµРЅРёР№
+     * @param out РЎСЃС‹Р»РєР° РЅР° РІРµРєС‚РѕСЂ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::StoreValues(std::vector<std::string>& out) {
         parser_.options_[index_].storeStrings = &out;
@@ -103,9 +103,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Указывает переменную для сохранения целочисленного значения
-     * @param out Ссылка на переменную для сохранения
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈРєР°Р·С‹РІР°РµС‚ РїРµСЂРµРјРµРЅРЅСѓСЋ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ С†РµР»РѕС‡РёСЃР»РµРЅРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
+     * @param out РЎСЃС‹Р»РєР° РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::StoreValue(int& out) {
         parser_.options_[index_].storeInt = &out;
@@ -113,9 +113,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Указывает вектор для сохранения нескольких целочисленных значений
-     * @param out Ссылка на вектор для сохранения
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈРєР°Р·С‹РІР°РµС‚ РІРµРєС‚РѕСЂ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РЅРµСЃРєРѕР»СЊРєРёС… С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№
+     * @param out РЎСЃС‹Р»РєР° РЅР° РІРµРєС‚РѕСЂ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::StoreValues(std::vector<int>& out) {
         parser_.options_[index_].storeInts = &out;
@@ -123,9 +123,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Указывает переменную для сохранения булева значения
-     * @param out Ссылка на переменную для сохранения
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈРєР°Р·С‹РІР°РµС‚ РїРµСЂРµРјРµРЅРЅСѓСЋ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ Р±СѓР»РµРІР° Р·РЅР°С‡РµРЅРёСЏ
+     * @param out РЎСЃС‹Р»РєР° РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::StoreValue(bool& out) {
         parser_.options_[index_].storeBool = &out;
@@ -133,9 +133,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Указывает, что опция может принимать несколько значений
-     * @param minCount Минимальное количество значений
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РЈРєР°Р·С‹РІР°РµС‚, С‡С‚Рѕ РѕРїС†РёСЏ РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ Р·РЅР°С‡РµРЅРёР№
+     * @param minCount РњРёРЅРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РЅР°С‡РµРЅРёР№
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::MultiValue(size_t minCount) {
         auto& opt = parser_.options_[index_];
@@ -145,21 +145,21 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Помечает опцию как позиционную
-     * @return Ссылка на себя для цепочки вызовов
+     * @brief РџРѕРјРµС‡Р°РµС‚ РѕРїС†РёСЋ РєР°Рє РїРѕР·РёС†РёРѕРЅРЅСѓСЋ
+     * @return РЎСЃС‹Р»РєР° РЅР° СЃРµР±СЏ РґР»СЏ С†РµРїРѕС‡РєРё РІС‹Р·РѕРІРѕРІ
      */
     ArgParser::ArgBuilder& ArgParser::ArgBuilder::Positional() {
         parser_.options_[index_].positional = true;
         return *this;
     }
 
-    // Методы добавления аргументов
+    // РњРµС‚РѕРґС‹ РґРѕР±Р°РІР»РµРЅРёСЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ
 
     /**
-     * @brief Добавляет строковый аргумент
-     * @param name Имя аргумента
-     * @param description Описание аргумента
-     * @return Построитель аргументов для настройки
+     * @brief Р”РѕР±Р°РІР»СЏРµС‚ СЃС‚СЂРѕРєРѕРІС‹Р№ Р°СЂРіСѓРјРµРЅС‚
+     * @param name РРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param description РћРїРёСЃР°РЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @return РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ Р°СЂРіСѓРјРµРЅС‚РѕРІ РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё
      */
     ArgParser::ArgBuilder ArgParser::AddStringArgument(const std::string& name, const std::string& description) {
         CreateOption(ArgType::String, 0, name, description);
@@ -167,11 +167,11 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Добавляет строковый аргумент с коротким именем
-     * @param shortName Короткое имя аргумента
-     * @param name Длинное имя аргумента
-     * @param description Описание аргумента
-     * @return Построитель аргументов для настройки
+     * @brief Р”РѕР±Р°РІР»СЏРµС‚ СЃС‚СЂРѕРєРѕРІС‹Р№ Р°СЂРіСѓРјРµРЅС‚ СЃ РєРѕСЂРѕС‚РєРёРј РёРјРµРЅРµРј
+     * @param shortName РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param name Р”Р»РёРЅРЅРѕРµ РёРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param description РћРїРёСЃР°РЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @return РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ Р°СЂРіСѓРјРµРЅС‚РѕРІ РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё
      */
     ArgParser::ArgBuilder ArgParser::AddStringArgument(char shortName, const std::string& name, const std::string& description) {
         CreateOption(ArgType::String, shortName, name, description);
@@ -179,10 +179,10 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Добавляет целочисленный аргумент
-     * @param name Имя аргумента
-     * @param description Описание аргумента
-     * @return Построитель аргументов для настройки
+     * @brief Р”РѕР±Р°РІР»СЏРµС‚ С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹Р№ Р°СЂРіСѓРјРµРЅС‚
+     * @param name РРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param description РћРїРёСЃР°РЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @return РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ Р°СЂРіСѓРјРµРЅС‚РѕРІ РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё
      */
     ArgParser::ArgBuilder ArgParser::AddIntArgument(const std::string& name, const std::string& description) {
         CreateOption(ArgType::Int, 0, name, description);
@@ -190,11 +190,11 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Добавляет целочисленный аргумент с коротким именем
-     * @param shortName Короткое имя аргумента
-     * @param name Длинное имя аргумента
-     * @param description Описание аргумента
-     * @return Построитель аргументов для настройки
+     * @brief Р”РѕР±Р°РІР»СЏРµС‚ С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹Р№ Р°СЂРіСѓРјРµРЅС‚ СЃ РєРѕСЂРѕС‚РєРёРј РёРјРµРЅРµРј
+     * @param shortName РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param name Р”Р»РёРЅРЅРѕРµ РёРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param description РћРїРёСЃР°РЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @return РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ Р°СЂРіСѓРјРµРЅС‚РѕРІ РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё
      */
     ArgParser::ArgBuilder ArgParser::AddIntArgument(char shortName, const std::string& name, const std::string& description) {
         CreateOption(ArgType::Int, shortName, name, description);
@@ -202,10 +202,10 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Добавляет флаг
-     * @param name Имя флага
-     * @param description Описание флага
-     * @return Построитель аргументов для настройки
+     * @brief Р”РѕР±Р°РІР»СЏРµС‚ С„Р»Р°Рі
+     * @param name РРјСЏ С„Р»Р°РіР°
+     * @param description РћРїРёСЃР°РЅРёРµ С„Р»Р°РіР°
+     * @return РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ Р°СЂРіСѓРјРµРЅС‚РѕРІ РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё
      */
     ArgParser::ArgBuilder ArgParser::AddFlag(const std::string& name, const std::string& description) {
         CreateOption(ArgType::Flag, 0, name, description);
@@ -213,11 +213,11 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Добавляет флаг с коротким именем
-     * @param shortName Короткое имя флага
-     * @param name Длинное имя флага
-     * @param description Описание флага
-     * @return Построитель аргументов для настройки
+     * @brief Р”РѕР±Р°РІР»СЏРµС‚ С„Р»Р°Рі СЃ РєРѕСЂРѕС‚РєРёРј РёРјРµРЅРµРј
+     * @param shortName РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ С„Р»Р°РіР°
+     * @param name Р”Р»РёРЅРЅРѕРµ РёРјСЏ С„Р»Р°РіР°
+     * @param description РћРїРёСЃР°РЅРёРµ С„Р»Р°РіР°
+     * @return РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ Р°СЂРіСѓРјРµРЅС‚РѕРІ РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё
      */
     ArgParser::ArgBuilder ArgParser::AddFlag(char shortName, const std::string& name, const std::string& description) {
         CreateOption(ArgType::Flag, shortName, name, description);
@@ -225,26 +225,26 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Добавляет опцию справки
-     * @param shortName Короткое имя опции
-     * @param name Длинное имя опции
-     * @param description Описание опции
-     * @return Построитель аргументов для настройки
+     * @brief Р”РѕР±Р°РІР»СЏРµС‚ РѕРїС†РёСЋ СЃРїСЂР°РІРєРё
+     * @param shortName РљРѕСЂРѕС‚РєРѕРµ РёРјСЏ РѕРїС†РёРё
+     * @param name Р”Р»РёРЅРЅРѕРµ РёРјСЏ РѕРїС†РёРё
+     * @param description РћРїРёСЃР°РЅРёРµ РѕРїС†РёРё
+     * @return РџРѕСЃС‚СЂРѕРёС‚РµР»СЊ Р°СЂРіСѓРјРµРЅС‚РѕРІ РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё
      */
     ArgParser::ArgBuilder ArgParser::AddHelp(char shortName, const std::string& name, const std::string& description) {
         CreateOption(ArgType::Help, shortName, name, description);
         return ArgBuilder(*this, options_.size() - 1);
     }
 
-    // Реализация парсинга
+    // Р РµР°Р»РёР·Р°С†РёСЏ РїР°СЂСЃРёРЅРіР°
 
     /**
-     * @brief Парсит аргументы командной строки
-     * @param args Вектор строк аргументов
-     * @return true, если парсинг успешен, false в случае ошибки
+     * @brief РџР°СЂСЃРёС‚ Р°СЂРіСѓРјРµРЅС‚С‹ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё
+     * @param args Р’РµРєС‚РѕСЂ СЃС‚СЂРѕРє Р°СЂРіСѓРјРµРЅС‚РѕРІ
+     * @return true, РµСЃР»Рё РїР°СЂСЃРёРЅРі СѓСЃРїРµС€РµРЅ, false РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
      */
     bool ArgParser::Parse(const std::vector<std::string>& args) {
-        // Сброс состояния всех опций
+        // РЎР±СЂРѕСЃ СЃРѕСЃС‚РѕСЏРЅРёСЏ РІСЃРµС… РѕРїС†РёР№
         for (auto& opt : options_) {
             opt.seen = false;
             opt.valuesString.clear();
@@ -252,15 +252,15 @@ namespace ArgumentParser {
         }
         helpRequested_ = false;
 
-        // Поиск позиционной опции
+        // РџРѕРёСЃРє РїРѕР·РёС†РёРѕРЅРЅРѕР№ РѕРїС†РёРё
         Option* positionalOpt = nullptr;
         for (auto& opt : options_) if (opt.positional) { positionalOpt = &opt; break; }
 
-        // Обработка каждого аргумента
+        // РћР±СЂР°Р±РѕС‚РєР° РєР°Р¶РґРѕРіРѕ Р°СЂРіСѓРјРµРЅС‚Р°
         for (size_t i = 1; i < args.size(); ++i) {
             const auto& arg = args[i];
             if (arg.rfind("--", 0) == 0) {
-                // Обработка длинных опций (--option)
+                // РћР±СЂР°Р±РѕС‚РєР° РґР»РёРЅРЅС‹С… РѕРїС†РёР№ (--option)
                 if (arg == "--help") {
                     helpRequested_ = true;
                     continue;
@@ -279,7 +279,7 @@ namespace ArgumentParser {
                 }
             }
             else if (arg.rfind("-", 0) == 0) {
-                // Обработка коротких опций (-o)
+                // РћР±СЂР°Р±РѕС‚РєР° РєРѕСЂРѕС‚РєРёС… РѕРїС†РёР№ (-o)
                 if (arg.size() == 2 && arg[1] == 'h') { helpRequested_ = true; continue; }
                 if (arg.size() > 2 && arg[2] == '=') {
                     char sn = arg[1];
@@ -302,7 +302,7 @@ namespace ArgumentParser {
                 }
             }
             else {
-                // Обработка позиционного аргумента
+                // РћР±СЂР°Р±РѕС‚РєР° РїРѕР·РёС†РёРѕРЅРЅРѕРіРѕ Р°СЂРіСѓРјРµРЅС‚Р°
                 if (!positionalOpt) return false;
                 Option* opt = positionalOpt;
                 if (opt->type == ArgType::String) { if (opt->multi) opt->valuesString.push_back(arg); else opt->valueString = arg; }
@@ -312,10 +312,10 @@ namespace ArgumentParser {
             }
         }
 
-        // Если запрошена справка, остальные проверки не нужны
+        // Р•СЃР»Рё Р·Р°РїСЂРѕС€РµРЅР° СЃРїСЂР°РІРєР°, РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРѕРІРµСЂРєРё РЅРµ РЅСѓР¶РЅС‹
         if (helpRequested_) return true;
 
-        // Проверка обязательных аргументов и применение значений по умолчанию
+        // РџСЂРѕРІРµСЂРєР° РѕР±СЏР·Р°С‚РµР»СЊРЅС‹С… Р°СЂРіСѓРјРµРЅС‚РѕРІ Рё РїСЂРёРјРµРЅРµРЅРёРµ Р·РЅР°С‡РµРЅРёР№ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         for (auto& opt : options_) {
             if (opt.type == ArgType::String) {
                 if (!opt.multi) {
@@ -349,10 +349,10 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Парсит аргументы командной строки (C-style)
-     * @param argc Количество аргументов
-     * @param argv Массив строк аргументов
-     * @return true, если парсинг успешен, false в случае ошибки
+     * @brief РџР°СЂСЃРёС‚ Р°СЂРіСѓРјРµРЅС‚С‹ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё (C-style)
+     * @param argc РљРѕР»РёС‡РµСЃС‚РІРѕ Р°СЂРіСѓРјРµРЅС‚РѕРІ
+     * @param argv РњР°СЃСЃРёРІ СЃС‚СЂРѕРє Р°СЂРіСѓРјРµРЅС‚РѕРІ
+     * @return true, РµСЃР»Рё РїР°СЂСЃРёРЅРі СѓСЃРїРµС€РµРЅ, false РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
      */
     bool ArgParser::Parse(int argc, char** argv) {
         std::vector<std::string> args(argv, argv + argc);
@@ -360,16 +360,16 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Проверяет, был ли запрошен вывод справки
-     * @return true, если запрошена справка
+     * @brief РџСЂРѕРІРµСЂСЏРµС‚, Р±С‹Р» Р»Рё Р·Р°РїСЂРѕС€РµРЅ РІС‹РІРѕРґ СЃРїСЂР°РІРєРё
+     * @return true, РµСЃР»Рё Р·Р°РїСЂРѕС€РµРЅР° СЃРїСЂР°РІРєР°
      */
     bool ArgParser::Help() const {
         return helpRequested_;
     }
 
     /**
-     * @brief Генерирует строку с описанием справки
-     * @return Строка с описанием использования программы
+     * @brief Р“РµРЅРµСЂРёСЂСѓРµС‚ СЃС‚СЂРѕРєСѓ СЃ РѕРїРёСЃР°РЅРёРµРј СЃРїСЂР°РІРєРё
+     * @return РЎС‚СЂРѕРєР° СЃ РѕРїРёСЃР°РЅРёРµРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РїСЂРѕРіСЂР°РјРјС‹
      */
     std::string ArgParser::HelpDescription() const {
         std::ostringstream oss;
@@ -378,9 +378,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Получает строковое значение аргумента
-     * @param name Имя аргумента
-     * @return Значение аргумента или пустая строка, если не найден
+     * @brief РџРѕР»СѓС‡Р°РµС‚ СЃС‚СЂРѕРєРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param name РРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @return Р—РЅР°С‡РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р° РёР»Рё РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ
      */
     std::string ArgParser::GetStringValue(const std::string& name) const {
         auto it = longNameMap_.find(name);
@@ -392,9 +392,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Получает целочисленное значение аргумента
-     * @param name Имя аргумента
-     * @return Значение аргумента или 0, если не найден
+     * @brief РџРѕР»СѓС‡Р°РµС‚ С†РµР»РѕС‡РёСЃР»РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param name РРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @return Р—РЅР°С‡РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р° РёР»Рё 0, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ
      */
     int ArgParser::GetIntValue(const std::string& name) const {
         auto it = longNameMap_.find(name);
@@ -406,10 +406,10 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Получает целочисленное значение аргумента по индексу (для multi-value)
-     * @param name Имя аргумента
-     * @param index Индекс значения
-     * @return Значение аргумента или 0, если не найден
+     * @brief РџРѕР»СѓС‡Р°РµС‚ С†РµР»РѕС‡РёСЃР»РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р° РїРѕ РёРЅРґРµРєСЃСѓ (РґР»СЏ multi-value)
+     * @param name РРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°
+     * @param index РРЅРґРµРєСЃ Р·РЅР°С‡РµРЅРёСЏ
+     * @return Р—РЅР°С‡РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р° РёР»Рё 0, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ
      */
     int ArgParser::GetIntValue(const std::string& name, size_t index) const {
         auto it = longNameMap_.find(name);
@@ -419,9 +419,9 @@ namespace ArgumentParser {
     }
 
     /**
-     * @brief Проверяет, установлен ли флаг
-     * @param name Имя флага
-     * @return true, если флаг установлен или есть значение по умолчанию
+     * @brief РџСЂРѕРІРµСЂСЏРµС‚, СѓСЃС‚Р°РЅРѕРІР»РµРЅ Р»Рё С„Р»Р°Рі
+     * @param name РРјСЏ С„Р»Р°РіР°
+     * @return true, РµСЃР»Рё С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ РёР»Рё РµСЃС‚СЊ Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
      */
     bool ArgParser::GetFlag(const std::string& name) const {
         auto it = longNameMap_.find(name);
