@@ -1,0 +1,19 @@
+# Служебные значения (Секция root)
+version = 1
+name = "DemoApp"
+
+# Секция вложенности 1
+[level1]
+string = "Привет! Я секция [level1]"  # Комментарий справа
+bool = false
+int = 13
+float = 3.141892
+intArray = [1, 2, 3, 4, 5]
+
+# Секция вложенности 2
+[level1.level2]
+string = "Привет! Я вложенная секция [level2]"
+bool = true
+int = 99
+float = 2.16230
+stringArray = ["Яблоко", "Груша", "Вишня"]
