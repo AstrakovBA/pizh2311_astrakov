@@ -3,8 +3,11 @@
 #include <cstring>
 #include <algorithm>
 
-// Используем synchsafe integer (Чтобы mp3 парсер принял заголовок или значения фрейма за начала аудио)
-// Коротко - ошибка 0xFF (В данном случае любое целое число имеет 0 в старшем бите, но не во всех битах)
+/**
+ * @brief Читает synchsafe integer из массива байт
+ * @param bytes Массив из 4 байт для чтения
+ * @return Возвращает декодированное 32-битное число
+ */
 uint32_t readSynchSafeInteger(const std::array<unsigned char,4>& bytes) {
     uint32_t value = 0;
     for (int i = 0; i < 4; ++i) {
@@ -13,13 +16,28 @@ uint32_t readSynchSafeInteger(const std::array<unsigned char,4>& bytes) {
     return value;
 }
 
+/**
+ * @brief Конструктор класса Frame
+ * @param id_ Идентификатор фрейма
+ * @param size_ Размер данных фрейма
+ * @param flags_ Флаги фрейма
+ * @param data_ Данные фрейма
+ */
 Frame::Frame(const std::string& id_, uint32_t size_, uint16_t flags_, const std::vector<unsigned char>& data_)
     : id(id_), size(size_), flags(flags_), data(data_) {}
 
+/**
+ * @brief Выводит основную информацию о фрейме
+ */
 void Frame::print() const {
     std::cout << id << " (" << size << " bytes)";
 }
 
+/**
+ * @brief Возвращает описание фрейма по его ID
+ * @param id Идентификатор фрейма
+ * @return Строка с описанием фрейма
+ */
 std::string getFrameDescription(const std::string& id) {
     static const std::unordered_map<std::string, std::string> descriptions = {
         {"TIT2", "Название"}, {"TPE1", "Исполнитель"}, {"TALB", "Альбом"},
@@ -32,9 +50,19 @@ std::string getFrameDescription(const std::string& id) {
     return it != descriptions.end() ? it->second : "";
 }
 
+/**
+ * @brief Конструктор класса TextFrame
+ * @param id_ Идентификатор фрейма
+ * @param size_ Размер данных фрейма
+ * @param flags_ Флаги фрейма
+ * @param data_ Данные фрейма
+ */
 TextFrame::TextFrame(const std::string& id_, uint32_t size_, uint16_t flags_, const std::vector<unsigned char>& data_)
     : Frame(id_, size_, flags_, data_) {}
 
+/**
+ * @brief Выводит информацию о текстовом фрейме
+ */
 void TextFrame::print() const {
     std::string text;
     if (!data.empty()) {
@@ -47,9 +75,19 @@ void TextFrame::print() const {
     std::cout << ": " << text;
 }
 
+/**
+ * @brief Конструктор класса UrlFrame
+ * @param id_ Идентификатор фрейма
+ * @param size_ Размер данных фрейма
+ * @param flags_ Флаги фрейма
+ * @param data_ Данные фрейма
+ */
 UrlFrame::UrlFrame(const std::string& id_, uint32_t size_, uint16_t flags_, const std::vector<unsigned char>& data_)
     : Frame(id_, size_, flags_, data_) {}
 
+/**
+ * @brief Выводит информацию о URL фрейме
+ */
 void UrlFrame::print() const {
     std::string url(data.begin(), data.end());
     std::string desc = getFrameDescription(id);
@@ -58,9 +96,19 @@ void UrlFrame::print() const {
     std::cout << " (URL): " << url;
 }
 
+/**
+ * @brief Конструктор класса CommentFrame
+ * @param id_ Идентификатор фрейма
+ * @param size_ Размер данных фрейма
+ * @param flags_ Флаги фрейма
+ * @param data_ Данные фрейма
+ */
 CommentFrame::CommentFrame(const std::string& id_, uint32_t size_, uint16_t flags_, const std::vector<unsigned char>& data_)
     : Frame(id_, size_, flags_, data_) {}
 
+/**
+ * @brief Выводит информацию о фрейме комментария
+ */
 void CommentFrame::print() const {
     if (data.size() < 4) {
         std::cout << id << ": <invalid COMM frame>";
@@ -78,9 +126,24 @@ void CommentFrame::print() const {
     std::cout << " [" << language << "]: " << text;
 }
 
+/**
+ * @brief Конструктор класса UnknownFrame
+ * @param id_ Идентификатор фрейма
+ * @param size_ Размер данных фрейма
+ * @param flags_ Флаги фрейма
+ * @param data_ Данные фрейма
+ */
 UnknownFrame::UnknownFrame(const std::string& id_, uint32_t size_, uint16_t flags_, const std::vector<unsigned char>& data_)
     : Frame(id_, size_, flags_, data_) {}
 
+/**
+ * @brief Фабрика для создания объектов фреймов
+ * @param id Идентификатор фрейма
+ * @param size Размер данных фрейма
+ * @param flags Флаги фрейма
+ * @param data Данные фрейма
+ * @return Указатель на созданный объект фрейма
+ */
 std::unique_ptr<Frame> createFrame(const std::string& id, uint32_t size, uint16_t flags, const std::vector<unsigned char>& data) {
     if (!id.empty() && id[0] == 'T') {
         return std::make_unique<TextFrame>(id, size, flags, data);
