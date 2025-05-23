@@ -1,0 +1,1 @@
+add_library(myadapters myadapters.cpp myadapters.h)
